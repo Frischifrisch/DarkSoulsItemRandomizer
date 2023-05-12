@@ -186,32 +186,36 @@ class ChrInitParam:
     DATA_RECORD_SIZE = 0xF0 
     
     def __init__(self, chr_inits = None):
-        if chr_inits == None:
+        if chr_inits is None:
             chr_inits = []
         self.chr_inits = chr_inits
     
     @classmethod
     def load_from_file_content(cls, file_content):
         master_offset = 0
-        
+
         (strings_offset, data_offset, unk, chr_init_count) = struct.unpack_from("<IIHH", file_content, offset=master_offset)
         master_offset = 0x30  # Skip the rest of the header.
-        
+
         chr_inits = []
-        for i in range(chr_init_count):
+        for _ in range(chr_init_count):
             (chr_init_id, chr_init_data_offset, chr_init_string_offset) = struct.unpack_from("<III", file_content, offset=master_offset)
             master_offset += struct.calcsize("<III")
-            
+
             description = extract_shift_jisz(file_content, chr_init_string_offset)
             chr_init_data = file_content[chr_init_data_offset:chr_init_data_offset + cls.DATA_RECORD_SIZE]
             chr_inits.append(ChrInit.from_binary(chr_init_id, chr_init_data, description))
         return ChrInitParam(chr_inits)
         
     def find_chr_by_id(self, chr_id):
-        for chr_init in self.chr_inits:
-            if chr_init.chr_init_id == chr_id:
-                return chr_init
-        return None
+        return next(
+            (
+                chr_init
+                for chr_init in self.chr_inits
+                if chr_init.chr_init_id == chr_id
+            ),
+            None,
+        )
         
     def export_as_binary(self):
         num_of_records = len(self.chr_inits)

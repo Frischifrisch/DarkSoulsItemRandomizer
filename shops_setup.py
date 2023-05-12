@@ -200,11 +200,11 @@ DEFAULT_SHOP_DATA = {
  60002021: ShopData(2021, cost = 40000),
  60002100: ShopData(2100, cost = 2000),
  60002101: ShopData(2101, cost = 4000),
- 
+
  # Modify the Sorcerer's Catalyst that Rickert sells to have a
  #  high price, so that it is a last resort.
  60002102: ShopData(2102, cost = 500000),
- 
+
  60002200: ShopData(2200, cost = 2000),
  60002201: ShopData(2201, cost = 2000),
  60002202: ShopData(2202, cost = 1000),
@@ -459,5 +459,5 @@ PRICE_DISTIBUTION = {
  loc_s.LOC_DIF.SHOP_HARD: [1000] * 10 + [2000] * 10 + [5000] * 20 + [7500] * 20 + [10000] * 20 + [20000] * 10 + [30000] * 5 + [40000] * 4 + [50000] * 1
 }
 
-for v in PRICE_DISTIBUTION:
-    PRICE_DISTIBUTION[v].sort()
+for value in PRICE_DISTIBUTION.values():
+    value.sort()

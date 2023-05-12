@@ -104,11 +104,11 @@ class MainGUI:
         self.has_hovered_desc = False
         self.root = tk.Tk()
         self.style = ttk.Style()
-        self.root.title("Dark Souls Item Randomizer v" + VERSION_NUM)
+        self.root.title(f"Dark Souls Item Randomizer v{VERSION_NUM}")
         self.root.resizable(False, False)
         img = tk.PhotoImage(file=resource_path('favicon.gif'))
         self.root.call('wm', 'iconphoto', self.root._w, img)
-    
+
         tk.Label(self.root, text="Seed:").grid(row=0, column=0, sticky='E', padx=2)
         self.seed_string = tk.StringVar()
         self.seed_string.set("")
@@ -120,7 +120,7 @@ class MainGUI:
         self.sellout_button = tk.Button(self.root, text="$", bg="pale goldenrod",
          padx=2, pady=2, command=self.lift_sellout_area)
         self.sellout_button.grid(row=0, column=4, padx=2, sticky='E')
-        
+
         tk.Label(self.root, text="Dark Souls Game Version:").grid(row=1, column=0, columnspan=2, sticky='W', padx=2, ipady=1)
         self.game_version = tk.StringVar()
         self.game_version_menu = ttk.Combobox(self.root, textvariable=self.game_version, state="readonly", 
@@ -133,7 +133,7 @@ class MainGUI:
         self.game_version_menu.bind("<<ComboboxSelected>>", lambda _: self.update_game_version())
         self.game_version_menu.config(width=30)
         self.game_version_menu.grid(row=1, column=2, sticky='EW', padx=2)
-        
+
         self.msg_area = tk.Text(self.root, width=76, height=19, state="disabled", background=self.root.cget('background'), wrap="word")
         self.msg_area.grid(row=2, column=0, columnspan=3, rowspan=9, padx=2, pady=2)
         self.msg_quit_button = tk.Button(self.root, text="Quit", command=self.quit_button)
@@ -144,7 +144,7 @@ class MainGUI:
         self.back_button.grid(row=7, column=1, columnspan=2, rowspan=2)
         self.desc_area = tk.Text(self.root, width=76, height=19, state="disabled", background=self.root.cget('background'), wrap="word")
         self.desc_area.grid(row=2, column=0, columnspan=3, rowspan=9, padx=2, pady=2)
-        
+
         self.diff_frame = tk.LabelFrame(text="Difficulty:")
         self.diff_frame.grid(row=2, column=3, rowspan=1, sticky='NS', padx=2)
         self.diff = tk.IntVar()
@@ -165,7 +165,7 @@ class MainGUI:
         self.setup_hover_events(self.diff_rbutton1, {"diff": rngopts.RandOptDifficulty.EASY})
         self.setup_hover_events(self.diff_rbutton2, {"diff": rngopts.RandOptDifficulty.MEDIUM})
         self.setup_hover_events(self.diff_rbutton3, {"diff": rngopts.RandOptDifficulty.HARD})
-        
+
         self.key_diff_frame = tk.LabelFrame(text="Key Placement:")
         self.key_diff_frame.grid(row=3, column=3, rowspan=4, sticky='NS', padx=2)
         self.key_diff = tk.IntVar()
@@ -191,7 +191,7 @@ class MainGUI:
         self.setup_hover_events(self.key_diff_rbutton2, {"key_diff": rngopts.RandOptKeyDifficulty.RANDOMIZE})
         self.setup_hover_events(self.key_diff_rbutton3, {"key_diff": rngopts.RandOptKeyDifficulty.RACE_MODE})
         self.setup_hover_events(self.key_diff_rbutton4, {"key_diff": rngopts.RandOptKeyDifficulty.SPEEDRUN_MODE, "diff": rngopts.RandOptDifficulty.EASY})
-        
+
         self.soul_frame = tk.LabelFrame(text="Soul Items:")
         self.soul_frame.grid(row=7, column=3, rowspan=5, sticky='NS', padx=2, pady=2)
         self.soul_diff = tk.IntVar()
@@ -212,7 +212,7 @@ class MainGUI:
         self.setup_hover_events(self.soul_diff_rbutton1, {"souls_diff": rngopts.RandOptSoulItemsDifficulty.SHUFFLE})
         self.setup_hover_events(self.soul_diff_rbutton2, {"souls_diff": rngopts.RandOptSoulItemsDifficulty.CONSUMABLE})
         self.setup_hover_events(self.soul_diff_rbutton3, {"souls_diff": rngopts.RandOptSoulItemsDifficulty.TRANSPOSE})
-        
+
         self.start_items_frame = tk.LabelFrame(text="Starting Items:")
         self.start_items_frame.grid(row=2, column=4, sticky='NS', padx=2)
         self.start_items_diff = tk.IntVar()
@@ -233,7 +233,7 @@ class MainGUI:
         self.setup_hover_events(self.start_items_rbutton1, {"start_items": rngopts.RandOptStartItemsDifficulty.SHIELD_AND_1H})
         self.setup_hover_events(self.start_items_rbutton2, {"start_items": rngopts.RandOptStartItemsDifficulty.SHIELD_AND_2H})
         self.setup_hover_events(self.start_items_rbutton3, {"start_items": rngopts.RandOptStartItemsDifficulty.COMBINED_POOL_AND_2H})
-        
+
         self.fashion_bool = tk.BooleanVar()
         self.fashion_bool.set(True)
         self.fashion_bool.trace('w', lambda name, index, mode: self.update())
@@ -242,7 +242,7 @@ class MainGUI:
          width=20, anchor=tk.W)
         self.fashion_check.grid(row=3, column=4, sticky='W')
         self.setup_hover_events(self.fashion_check, {"fashion": None}, no_emph = True)
-        
+
         self.npc_armor_bool = tk.BooleanVar()
         self.npc_armor_bool.set(False)
         self.npc_armor_bool.trace('w', lambda name, index, mode: self.update())
@@ -251,7 +251,7 @@ class MainGUI:
          width=20, anchor=tk.W)
         self.npc_armor_check.grid(row=4, column=4, sticky='W')
         self.setup_hover_events(self.npc_armor_check, {"npc_armor": None}, no_emph = True)
-        
+
         self.use_lordvessel = tk.BooleanVar()
         self.use_lordvessel.set(False)
         self.use_lordvessel.trace('w', lambda name, index, mode: self.update())
@@ -260,7 +260,7 @@ class MainGUI:
          width=20, anchor=tk.W)
         self.lv_check.grid(row=5, column=4, sticky='W')
         self.setup_hover_events(self.lv_check, {"use_lv": None}, no_emph = True)
-        
+
         self.use_lord_souls = tk.BooleanVar()
         self.use_lord_souls.set(False)
         self.use_lordvessel.trace('w', lambda name, index, mode: self.update())
@@ -269,14 +269,14 @@ class MainGUI:
          width=20, anchor=tk.W)
         self.lord_soul_check.grid(row=6, column=4, sticky='W')
         self.setup_hover_events(self.lord_soul_check, {"use_lord_souls": None}, no_emph = True)
-        
+
         self.export_button = tk.Button(self.root, text="Scramble Items &\nExport to GameParam", 
          padx=10, pady=10, command=self.export_to_gameparam)
         self.export_button.grid(row=7, rowspan=3, column=4, padx=2, sticky='EW')
-        
+
         self.cheat_button = tk.Button(self.root, text="Write Seed Info &\nCheatsheet / Hintsheet", command=self.export_seed_info)
         self.cheat_button.grid(row=10, rowspan=2, column=4, sticky='EW', padx=2, pady=2)
-        
+
         self.update_desc()
         self.detect_game_version()
         self.check_for_new_version()
@@ -377,11 +377,10 @@ class MainGUI:
                 # Only NORMAL the currently shown desc part, rather
                 #  than EMPH the to-be-shown desc part.
                 overwrite_desc_specifiers[part] = (current_state.desc_specifiers[part][0], DescriptionState.NORMAL)
+            elif hovered_parts[part] == current_state.desc_specifiers[part][0]:
+                overwrite_desc_specifiers[part] = (hovered_parts[part], DescriptionState.NORMAL)
             else:
-                if hovered_parts[part] == current_state.desc_specifiers[part][0]:
-                    overwrite_desc_specifiers[part] = (hovered_parts[part], DescriptionState.NORMAL)
-                else:
-                    overwrite_desc_specifiers[part] = (hovered_parts[part], DescriptionState.EMPH)
+                overwrite_desc_specifiers[part] = (hovered_parts[part], DescriptionState.EMPH)
         self.update_desc_with_fade(overwrite_desc_specifiers)
         self.has_hovered_desc = True
         
@@ -453,8 +452,7 @@ class MainGUI:
         
     def get_syncnum_string(self, random_source):
         syncnum = "%07d" % random_source.randrange(10000000)
-        syncnum_str = syncnum[0:4] + "-" + syncnum[4:7]
-        return syncnum_str
+        return f"{syncnum[:4]}-{syncnum[4:7]}"
         
     def export_seed_info(self, use_randomized_data=None):
         if self.is_seed_empty():
@@ -463,24 +461,26 @@ class MainGUI:
         if self.game_version.get() not in [rngopts.RandOptGameVersion.PTDE, rngopts.RandOptGameVersion.REMASTERED]:
             self.game_version_menu.configure(style="Highlight.GameVersion.TCombobox")
             return
-        
-        new_dir_name = "random-seed-" + datetime.datetime.today().strftime("%Y-%m-%d--%H-%M-%S-%f")
+
+        new_dir_name = "random-seed-" + datetime.datetime.now().strftime(
+            "%Y-%m-%d--%H-%M-%S-%f"
+        )
         new_dirpath = os.path.join(os.getcwd(), new_dir_name)
         try: 
             os.makedirs(new_dirpath)
         except OSError:
             if not os.path.isdir(new_dirpath):
                 raise
-        
+
         if use_randomized_data:
             (options, randomized_data, rng) = use_randomized_data
         else:
             (options, randomized_data, rng) = self.randomize_data(None)
         (table, randomized_chr_data) = randomized_data
-            
-            
+
+
         syncnum = self.get_syncnum_string(rng)
-        
+
         result_ilp = table.build_itemlotparam()
         ilp_binary_export = result_ilp.export_as_binary()
         result_slp = table.build_shoplineup()
@@ -488,15 +488,17 @@ class MainGUI:
         cip_binary_export = randomized_chr_data.export_as_binary()
         cheat_string = table.build_cheatsheet(show_event_flags = False)
         hint_string = table.build_hintsheet()
-        seed_info = "Seed: " + str(self.seed_string.get()) + "\n\n" + options.as_string()
-        
+        seed_info = (
+            f"Seed: {str(self.seed_string.get())}" + "\n\n" + options.as_string()
+        )
+
         ITEMLOT_FILEPATH = os.path.join(new_dirpath, "ItemLotParam.param")
         SHOPLINEUP_FILEPATH = os.path.join(new_dirpath, "ShopLineupParam.param")
         CHRINIT_FILEPATH = os.path.join(new_dirpath, "CharaInitParam.param")
         CHEATSHEET_FILEPATH = os.path.join(new_dirpath, "cheatsheet.txt")
         HINTSHEET_FILEPATH = os.path.join(new_dirpath, "hintsheet.txt")
         SEEDINFO_FILEPATH = os.path.join(new_dirpath, "seed_info.txt")
-        
+
         with open(ITEMLOT_FILEPATH, 'wb') as f:
             f.write(ilp_binary_export)
         with open(SHOPLINEUP_FILEPATH, 'wb') as f:
@@ -509,7 +511,7 @@ class MainGUI:
             f.write(hint_string)
         with open(SEEDINFO_FILEPATH, 'w') as f:
             f.write(seed_info)
-            
+
         if not use_randomized_data:
             self.msg_continue_button.lower()
             self.msg_area.config(state="normal")
@@ -517,15 +519,19 @@ class MainGUI:
             self.msg_area.insert("end", "\n")
             self.msg_area.insert("end", "SUCCESS", "yay")
             self.msg_area.insert("end", "! The information for this seed has been exported in the directory\n  " + 
-            new_dir_name + "\n\n") 
-            self.msg_area.insert("end", "SyncNum: " + syncnum + "\n  (When racing, all SyncNums should be equal or settings do not match.)\n\n")
+            new_dir_name + "\n\n")
+            self.msg_area.insert(
+                "end",
+                f"SyncNum: {syncnum}"
+                + "\n  (When racing, all SyncNums should be equal or settings do not match.)\n\n",
+            )
             self.msg_area.insert("end", "Click \"Back\" to begin again, or click \"Quit\" to exit.\n\n")
             self.msg_area.tag_config("yay", foreground="green")
             self.msg_area.config(state="disabled")
             self.msg_area.lift()
             self.back_button.lift()
             self.msg_quit_button.lift()
-            
+
         return new_dir_name
         
     def export_to_gameparam(self):
@@ -535,17 +541,17 @@ class MainGUI:
             paths_to_search = DS1R_GAMEPARAM_PATH_LIST
         else:
             paths_to_search = []
-        
+
         has_gameparam = False
         for filepath in paths_to_search:
             normed_path = os.path.normpath(os.path.join(os.getcwd(), filepath))
             if os.path.isfile(normed_path):
                 has_gameparam = True
                 gameparam_filepath = normed_path
-                gameparambak_filepath = normed_path + ".bak"
-                
+                gameparambak_filepath = f"{normed_path}.bak"
+
         is_remastered = (self.game_version.get() == rngopts.RandOptGameVersion.REMASTERED)
-        
+
         if not has_gameparam:
             self.msg_area.config(state="normal")
             self.msg_area.delete(1.0, "end")
@@ -564,7 +570,7 @@ class MainGUI:
                 gp_filename = "GameParam.parambnd.dcx"
             else:
                 gp_filename = "GameParam.parambnd"
-            
+
             with open(gameparam_filepath, "rb") as f:
                 content = f.read()
             try:
@@ -578,30 +584,40 @@ class MainGUI:
                 self.msg_area.delete(1.0, "end")
                 self.msg_area.insert("end", "\n\n")
                 self.msg_area.insert("end", "ERROR", "error_red")
-                self.msg_area.insert("end", 
-                 ": " + gp_filename + " is malformed or corrupted and cannot be" + 
-                 " parsed to export randomized items. If possible, restore " + gp_filename + " from a backup copy.\n\n" +
-                 "Click \"Continue\" to continue in seed-information-only mode, or" + 
-                 " click \"Quit\" to exit.")
+                self.msg_area.insert(
+                    "end",
+                    (
+                        (
+                            (
+                                f": {gp_filename} is malformed or corrupted and cannot be parsed to export randomized items. If possible, restore {gp_filename}"
+                                + " from a backup copy.\n\n"
+                            )
+                            + "Click \"Continue\" to continue in seed-information-only mode, or"
+                        )
+                        + " click \"Quit\" to exit."
+                    ),
+                )
                 self.msg_area.tag_config("error_red", foreground="red")
                 self.msg_area.config(state="disabled")
                 self.export_button.config(state = "disabled")
                 self.lift_msg_area()
                 return
-            
+
             # Back up GameParam.parambnd if needed.
             if not os.path.isfile(gameparambak_filepath):
                 shutil.copy2(gameparam_filepath, gameparambak_filepath)
-                
+
             if self.is_seed_empty():
                 self.get_new_seed()
 
-            for index, (file_id, filepath, filedata) in enumerate(content_list):
-                if (filepath == "N:\FRPG\data\INTERROOT_win32\param\GameParam\CharaInitParam.param" or
-                 filepath == "N:\FRPG\data\INTERROOT_x64\param\GameParam\CharaInitParam.param"):
+            for file_id, filepath, filedata in content_list:
+                if filepath in [
+                    "N:\FRPG\data\INTERROOT_win32\param\GameParam\CharaInitParam.param",
+                    "N:\FRPG\data\INTERROOT_x64\param\GameParam\CharaInitParam.param",
+                ]:
                     chr_init_data = filedata
-            
-            
+
+
             # TODO: Implement this system correctly by passing chr_init_data
             #  instead of None to preserve externally modified characters (e.g. another mod).
             #  However, we need some way to determine external modifications
@@ -610,38 +626,55 @@ class MainGUI:
             (options, randomized_data, rng) = self.randomize_data(None)
             (item_table, randomized_chr_data) = randomized_data
             syncnum = self.get_syncnum_string(rng)
-            
+
             result_ilp = item_table.build_itemlotparam()
             ilp_binary_export = result_ilp.export_as_binary()
             result_slp = item_table.build_shoplineup()
             slp_binary_export = result_slp.export_as_binary()
             cip_binary_export = randomized_chr_data.export_as_binary()
-            
+
             for index, (file_id, filepath, filedata) in enumerate(content_list):
-                if (filepath == "N:\FRPG\data\INTERROOT_win32\param\GameParam\ItemLotParam.param" or
-                 filepath == "N:\FRPG\data\INTERROOT_x64\param\GameParam\ItemLotParam.param"):
+                if filepath in [
+                    "N:\FRPG\data\INTERROOT_win32\param\GameParam\ItemLotParam.param",
+                    "N:\FRPG\data\INTERROOT_x64\param\GameParam\ItemLotParam.param",
+                ]:
                     content_list[index] = (file_id, filepath, ilp_binary_export)
-                if (filepath == "N:\FRPG\data\INTERROOT_win32\param\GameParam\ShopLineupParam.param" or
-                 filepath == "N:\FRPG\data\INTERROOT_x64\param\GameParam\ShopLineupParam.param"):
+                if filepath in [
+                    "N:\FRPG\data\INTERROOT_win32\param\GameParam\ShopLineupParam.param",
+                    "N:\FRPG\data\INTERROOT_x64\param\GameParam\ShopLineupParam.param",
+                ]:
                     content_list[index] = (file_id, filepath, slp_binary_export)
-                if (filepath == "N:\FRPG\data\INTERROOT_win32\param\GameParam\CharaInitParam.param" or
-                 filepath == "N:\FRPG\data\INTERROOT_x64\param\GameParam\CharaInitParam.param"):
-                     content_list[index] = (file_id, filepath, cip_binary_export)
+                if filepath in [
+                    "N:\FRPG\data\INTERROOT_win32\param\GameParam\CharaInitParam.param",
+                    "N:\FRPG\data\INTERROOT_x64\param\GameParam\CharaInitParam.param",
+                ]:
+                    content_list[index] = (file_id, filepath, cip_binary_export)
             new_content = bnd_rebuilder.repack_bnd(content_list)
             if is_remastered:
                 new_content = dcx_handler.compress_dcx_content(new_content)
             with open(gameparam_filepath, "wb") as f:
                 f.write(new_content)
             seed_folder = self.export_seed_info((options, randomized_data, rng))
-                
+
             self.msg_continue_button.lower()
             self.msg_area.config(state="normal")
             self.msg_area.delete(1.0, "end")
             self.msg_area.insert("end", "\n\n")
             self.msg_area.insert("end", "SUCCESS", "yay")
-            self.msg_area.insert("end", "! " + gp_filename + " has been modified successfully.\n\n" +
-                "The information for this seed has been exported in the directory\n\n  " + 
-                seed_folder + "\n\n")
+            self.msg_area.insert(
+                "end",
+                (
+                    (
+                        (
+                            f"! {gp_filename}"
+                            + " has been modified successfully.\n\n"
+                            + "The information for this seed has been exported in the directory\n\n  "
+                        )
+                        + seed_folder
+                    )
+                    + "\n\n"
+                ),
+            )
             self.msg_area.insert("end", "SyncNum: " + syncnum + "\n  (When racing, all SyncNums should be equal or settings do not match.)\n\n")
             self.msg_area.insert("end", "Click \"Back\" to begin again, or click \"Quit\" to exit.")
             self.msg_area.tag_config("yay", foreground="green")

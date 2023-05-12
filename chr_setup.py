@@ -130,37 +130,29 @@ class ChrInitEntry:
      covenant, gestures, souls = 0, base_hp = 0, base_mp = 0, 
      base_rec_mp = 0, base_sp = 0, base_rec_sp = 0, red_falldam = 0, 
      qwc_sb = 0, qwc_mw = 0, qwc_cd = 0):
-        if arrows == None:
+        if arrows is None:
             self.arrows = ChrInitArrows(-1, 0, -1, 0, -1, 0, -1, 0)
         else:
             self.arrows = arrows
-        
-        if rings == None:
-            self.rings = ChrInitRings(-1, -1, -1, -1, -1)
-        else:
-            self.rings = rings
-            
-        if skills == None:
-            self.skills = ChrInitSkills(-1, -1, -1)
-        else:
-            self.skills = skills
-            
-        if spells == None:
+
+        self.rings = ChrInitRings(-1, -1, -1, -1, -1) if rings is None else rings
+        self.skills = ChrInitSkills(-1, -1, -1) if skills is None else skills
+        if spells is None:
             self.spells = ChrInitSpells(-1, -1, -1, -1, -1, -1, -1)
         else:
             self.spells = spells
-            
-        if items == None:
+
+        if items is None:
             self.items = ChrInitItems(-1, 0, -1, 0, -1, 0, -1, 0, -1, 0, 
              -1, 0, -1, 0, -1, 0, -1, 0, -1, 0)
         else:
             self.items = items
-            
-        if body_scale == None:
+
+        if body_scale is None:
             self.body_scale = ChrInitBodyScale(0, 0, 0, 0, 0)
         else:
             self.body_scale = body_scale
-        
+
         self.stats = stats
         self.weapons = weapons
         self.armor = armor
@@ -536,26 +528,10 @@ VANILLA_CHRS = {
 class CharacterArmorLinks:
     def __init__(self, head_list, chest_list, arms_list, legs_list, 
      is_npc = True, has_hat = True, special_hat = False):
-        if head_list == None:
-            self.head_list = []
-        else:
-            self.head_list = head_list
-        
-        if chest_list == None:
-            self.chest_list = []
-        else:
-            self.chest_list = chest_list
-            
-        if arms_list == None:
-            self.arms_list = []
-        else:
-            self.arms_list = arms_list
-            
-        if legs_list == None:
-            self.legs_list = []
-        else:
-            self.legs_list = legs_list
-            
+        self.head_list = [] if head_list is None else head_list
+        self.chest_list = [] if chest_list is None else chest_list
+        self.arms_list = [] if arms_list is None else arms_list
+        self.legs_list = [] if legs_list is None else legs_list
         self.is_npc = is_npc
         self.has_hat = has_hat
         self.special_hat = special_hat

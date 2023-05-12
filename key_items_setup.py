@@ -26,13 +26,12 @@ ADDITIONAL_SPEEDRUN_KEYS = ["purple_cowards_crystal"]
 def key_placed(key_name, current_key_locations):
     if key_name not in current_key_locations:
         return False
-    key_status = current_key_locations[key_name]
-    return not(key_status == "to_place" or key_status == "cannot_place")
+    return current_key_locations[key_name] not in ["to_place", "cannot_place"]
        
 def check_key_locations_are_valid(current_key_locations, rand_options):
     speedrun = (rand_options.key_placement == rng_opt.RandOptKeyDifficulty.SPEEDRUN_MODE)
     connection_dict = get_connections(rand_options)
-        
+
     # Pretend to start in the Prison with no keys to simulate having to
     #  find the key and escape, to check that this is possible.
     # This is skipped on speedrun mode, because of Duke Skip.
@@ -56,14 +55,14 @@ def check_key_locations_are_valid(current_key_locations, rand_options):
                             has_changed = True
         if AREA.DUKES_ARCHIVES not in current_areas:
             return False
-            
+
     # Run the check for real, from the starting area.
     current_areas = OrderedSet(["starting"])
     current_keys = OrderedSet(["none"])
     has_changed = True
     while has_changed:
         has_changed = False
-    
+
         if (not speedrun and AREA.UNDEAD_PARISH in current_areas and
          AREA.QUELAAGS_DOMAIN in current_areas and 
          AREA.SENS_FORTRESS not in current_areas):
@@ -72,18 +71,17 @@ def check_key_locations_are_valid(current_key_locations, rand_options):
                 if current_key_locations[new_key].area == AREA.SENS_FORTRESS:
                     current_keys.add(new_key)
              has_changed = True
-    
-        open_kiln = True
-        for area in connection_dict:
-            if area != AREA.KILN and area not in current_areas:
-                open_kiln = False
-                
+
+        open_kiln = not any(
+            area != AREA.KILN and area not in current_areas
+            for area in connection_dict
+        )
         if not speedrun or "purple_cowards_crystal" not in current_keys:
             for key in ["lord_soul_shard_seath", "lord_soul_shard_four_kings", 
              "lord_soul_bed_of_chaos", "lord_soul_nito"]:
                 if key not in current_keys:
                     open_kiln = False
-                    
+
         if open_kiln and AREA.KILN not in current_areas:
             current_areas.add(AREA.KILN)
             has_changed = True
@@ -91,16 +89,13 @@ def check_key_locations_are_valid(current_key_locations, rand_options):
         for area in current_areas:
             for key in connection_dict[area]:
                 if key in current_keys:
+                    has_changed = True
                     for area_to_add in set(connection_dict[area][key]) - current_areas:
                         current_areas.add(area_to_add)
                         for new_key in current_key_locations:
                             if current_key_locations[new_key].area == area_to_add:
                                 current_keys.add(new_key)
-                        has_changed = True
-    for area in connection_dict:
-        if area not in current_areas:
-            return False
-    return True
+    return all(area in current_areas for area in connection_dict)
     
 def get_key_restrictions(key_name, rand_options):
     speedrun = (rand_options.key_placement == rng_opt.RandOptKeyDifficulty.SPEEDRUN_MODE)

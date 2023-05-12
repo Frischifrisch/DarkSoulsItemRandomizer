@@ -83,22 +83,32 @@ class CumulFlag:
 
 class Location:
     def __repr__(self):
-        return str("Location (id: " + str(self.location_id) + ")")
+        return str(f"Location (id: {str(self.location_id)})")
     
     def __init__(self, diff, area, max_size, is_transient = False, 
      is_race_key_loc = False, linked_locations = [], has_flag = -1, 
      has_cumul_flag = None, default_key = None, location_id = -1):
         if diff == LOC_DIF.IGNORE and area != AREA.NONE:
             print("Warning: Difficulty = IGNORE and area != NONE")
-        if ((diff != LOC_DIF.NPC_EASY and diff != LOC_DIF.NPC_MEDIUM and 
-         diff != LOC_DIF.NPC_HARD and diff != LOC_DIF.EMPTY and 
-         diff != LOC_DIF.UPGRADE and diff != LOC_DIF.RANDOM_UPGRADE) and
-         area == AREA.NPC_RNG_DROP):
-             print("Warning: Difficulty != NPC_(EASY|MEDIUM|HARD) but area = NPC_RNG_DROP")
-        if ((diff == LOC_DIF.NPC_EASY or diff == LOC_DIF.NPC_MEDIUM or 
-         diff == LOC_DIF.NPC_HARD) and area != AREA.NPC_RNG_DROP):
-             print("Warning: Difficulty = NPC_(EASY|MEDIUM|HARD) and area != NPC_RNG_DROP")
-        
+        if (
+            diff
+            not in [
+                LOC_DIF.NPC_EASY,
+                LOC_DIF.NPC_MEDIUM,
+                LOC_DIF.NPC_HARD,
+                LOC_DIF.EMPTY,
+                LOC_DIF.UPGRADE,
+                LOC_DIF.RANDOM_UPGRADE,
+            ]
+            and area == AREA.NPC_RNG_DROP
+        ):
+            print("Warning: Difficulty != NPC_(EASY|MEDIUM|HARD) but area = NPC_RNG_DROP")
+        if (
+            diff in [LOC_DIF.NPC_EASY, LOC_DIF.NPC_MEDIUM, LOC_DIF.NPC_HARD]
+            and area != AREA.NPC_RNG_DROP
+        ):
+            print("Warning: Difficulty = NPC_(EASY|MEDIUM|HARD) and area != NPC_RNG_DROP")
+
         self.diff = diff
         self.area = area
         self.max_size = max_size

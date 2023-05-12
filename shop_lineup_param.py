@@ -62,26 +62,26 @@ DATA_RECORD_SIZE = 0x20
 
 class ShopLineupParam:
     def __init__(self, shop_lineups = None):
-        if shop_lineups == None:
+        if shop_lineups is None:
             shop_lineups = []
         self.shop_lineups = shop_lineups
     
     @classmethod
     def load_from_file_content(cls, file_content):
         master_offset = 0
-        
+
         (strings_offset, data_offset, unk1, unk2, shop_lineup_count) = struct.unpack_from("<IHHHH", file_content, offset=master_offset)
-        
+
         master_offset = 0x30  # Skip the rest of the header.
-        
+
         shop_lineups = []
-        for i in range(shop_lineup_count):
-            (lineup_id, lineup_data_offset, lineup_string_offset) = struct.unpack_from("<III", file_content, offset=master_offset)           
+        for _ in range(shop_lineup_count):
+            (lineup_id, lineup_data_offset, lineup_string_offset) = struct.unpack_from("<III", file_content, offset=master_offset)
             master_offset += struct.calcsize("<III")
-            
+
             description = extract_shift_jisz(file_content, lineup_string_offset)
             lineup_data = file_content[lineup_data_offset:lineup_data_offset + DATA_RECORD_SIZE]
-            
+
             shop_lineups.append(ShopLineup.from_binary(lineup_id, lineup_data, description))
         return ShopLineupParam(shop_lineups)
              

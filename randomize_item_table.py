@@ -22,7 +22,7 @@ def make_difficulty_order_dict(rng_diff, item_diff):
         item_diff = item_s.ITEM_DIF.HARD
     if item_diff == item_s.ITEM_DIF.BOSS_SOUL:
         item_diff = item_s.ITEM_DIF.HARD
-    
+
     MASTER_ORDER_DICT = {
         (rng_opt.RandOptDifficulty.EASY, item_s.ITEM_DIF.EASY): {0: [loc_s.LOC_DIF.EASY, loc_s.LOC_DIF.MEDIUM, loc_s.LOC_DIF.HARD]},
         (rng_opt.RandOptDifficulty.EASY, item_s.ITEM_DIF.MEDIUM): {0: [loc_s.LOC_DIF.EASY, loc_s.LOC_DIF.MEDIUM, loc_s.LOC_DIF.HARD]},
@@ -52,11 +52,8 @@ def make_difficulty_order_dict(rng_diff, item_diff):
         (rng_opt.RandOptDifficulty.HARD, item_s.ITEM_DIF.SALABLE_MEDIUM): {0: [loc_s.LOC_DIF.SHOP_MEDIUM], 1: [loc_s.LOC_DIF.SHOP_EASY, loc_s.LOC_DIF.SHOP_HARD]},
         (rng_opt.RandOptDifficulty.HARD, item_s.ITEM_DIF.SALABLE_HARD): {0: [loc_s.LOC_DIF.SHOP_HARD], 1: [loc_s.LOC_DIF.SHOP_MEDIUM], 2: [loc_s.LOC_DIF.SHOP_EASY]}
     }
-    
-    if (rng_diff, item_diff) in MASTER_ORDER_DICT:
-        return MASTER_ORDER_DICT[(rng_diff, item_diff)]
-    else:
-        return {}
+
+    return MASTER_ORDER_DICT.get((rng_diff, item_diff), {})
         
 def eval_location_for_itemlotpart(table, loc_id, itemlotpart):
     loc = table.location_dict[loc_id]
@@ -72,10 +69,11 @@ def eval_location_for_itemlotpart(table, loc_id, itemlotpart):
     # Do not place a None item in a location that has size not 9 (and therefore 
     #  could cause other locations to not drop, if they are actually part of the
     #  same in-game location (like an NPC drop).
-    if (loc.max_size != 9 and len(itemlotpart.items) == 1 and 
-     itemlotpart.items[0].item_type == item_s.ITEM_TYPE.NONE):
-        return False
-    return True
+    return (
+        loc.max_size == 9
+        or len(itemlotpart.items) != 1
+        or itemlotpart.items[0].item_type != item_s.ITEM_TYPE.NONE
+    )
 
 # difficulty_dict has orderable keys (typically integers), and sets of difficulties from LOC_DIF as values.
 #  More forward-ordered keys are of higher priority, and those difficulties will
@@ -102,21 +100,25 @@ def create_random_placement_list(table, difficulty_dict, itemlotpart_to_place, r
     return return_list
     
 def find_key_item_by_name(key_name, item_list):
-    if key_name not in (key_items_s.KEY_NAMES + key_items_s.ADDITIONAL_SPEEDRUN_KEYS):
+    if (
+        key_name
+        not in key_items_s.KEY_NAMES + key_items_s.ADDITIONAL_SPEEDRUN_KEYS
+    ):
         return None
+    if key_item_list := [
+        item_list[item_id]
+        for item_id in item_list
+        if item_list[item_id].diff == item_s.ITEM_DIF.KEY
+        and item_list[item_id].key_name == key_name
+    ]:
+        return key_item_list[0]
     else:
-        key_item_list = [item_list[item_id] for item_id in item_list if 
-         item_list[item_id].diff == item_s.ITEM_DIF.KEY and 
-         item_list[item_id].key_name == key_name]
-        if len(key_item_list) == 0:
-            raise ValueError("Key item '" + str(key_name) + "' has no known key.")
-        else:
-            return key_item_list[0]
+        raise ValueError(f"Key item '{str(key_name)}' has no known key.")
                               
 def transmute_itemlotpart_to_upgrade(itemlotpart, random_source):
     (upgrade_id, upgrade_count) = random_source.choice(sorted(item_s.UPGRADES))
     itemlotpart.items = [item_s.ItemLotEntry(item_s.ITEM_TYPE.ITEM, upgrade_id, count = upgrade_count)]
-    log.debug("Transmuting itemlotpart into upgrade item " + str(upgrade_id))
+    log.debug(f"Transmuting itemlotpart into upgrade item {str(upgrade_id)}")
     return itemlotpart
     
 def transmute_itemlotpart_to_rng_drop_upgrade(itemlotpart, random_source):
@@ -143,8 +145,9 @@ def transmute_itemlotpart_to_consumable(itemlotpart, random_source):
     (cons_type, cons_id, cons_count_min, cons_count_max) = random_source.choice(sorted(item_s.RANDOM_CONSUMABLES))
     cons_count = random_source.randrange(cons_count_min, cons_count_max + 1)
     itemlotpart.items = [item_s.ItemLotEntry(cons_type, cons_id, count = cons_count)]
-    log.debug("Transmuting itemlotpart into consumable (" + str(cons_type) + ", " +
-     str(cons_id) + ", " + str(cons_count) + ")")
+    log.debug(
+        f"Transmuting itemlotpart into consumable ({str(cons_type)}, {str(cons_id)}, {str(cons_count)})"
+    )
     return itemlotpart
    
 def transmute_itemlotpart_to_boss_item(itemlotpart, random_source):
@@ -157,8 +160,9 @@ def transmute_itemlotpart_to_boss_item(itemlotpart, random_source):
                     (boss_item_type, boss_item_id) = random_source.choice(sorted(boss_item_list_to_use))
                     itemlotentry.item_type = boss_item_type
                     itemlotentry.item_id = boss_item_id
-                    log.debug("Transmuting itemlotpart into boss item (" + str(boss_item_type) + ", " +
-                     str(boss_item_id) + ")")
+                    log.debug(
+                        f"Transmuting itemlotpart into boss item ({str(boss_item_type)}, {str(boss_item_id)})"
+                    )
     return itemlotpart
     
 def place_ignored_items(table, item_list):
@@ -166,7 +170,9 @@ def place_ignored_items(table, item_list):
     for loc_id in table.location_dict:
         loc = table.location_dict[loc_id]
         if loc.diff in [loc_s.LOC_DIF.IGNORE, loc_s.LOC_DIF.EMPTY, loc_s.LOC_DIF.LEAVE_ALONE]:
-            log.debug("Placing ignored item ID# " + str(loc_id) + " at location ID# " + str(loc_id))
+            log.debug(
+                f"Placing ignored item ID# {str(loc_id)} at location ID# {str(loc_id)}"
+            )
             table.place_itemlotpart_at_location(item_list[loc_id], loc_id, item_list)
 
 def place_upgrade_items(table, random_source, item_list):
@@ -174,7 +180,7 @@ def place_upgrade_items(table, random_source, item_list):
     for loc_id in table.location_dict:
         loc = table.location_dict[loc_id]
         if loc.diff in [loc_s.LOC_DIF.UPGRADE, loc_s.LOC_DIF.RANDOM_UPGRADE]:
-            log.debug("Placing upgrade item at location ID# " + str(loc_id))
+            log.debug(f"Placing upgrade item at location ID# {str(loc_id)}")
             itemlotpart = item_list[loc_id]
             if loc.diff == loc_s.LOC_DIF.UPGRADE:
                 itemlotpart = transmute_itemlotpart_to_upgrade(itemlotpart, random_source)
@@ -200,9 +206,9 @@ def place_key_items(table, rand_options, random_source, item_list):
     else:
         log.info("Placing key items in random locations.")
         for key in key_items_s.KEY_NAMES:
-            current_key_locations[key] = "cannot_place"       
+            current_key_locations[key] = "cannot_place"
         #current_areas = set(["starting"])
-        
+
         if not rand_options.use_lordvessel:
             log.info("Placing Lordvessel in vanilla location.")
             place_key_item_in_vanilla_location(table, "lordvessel", current_key_locations, item_list)
@@ -220,25 +226,25 @@ def place_key_items(table, rand_options, random_source, item_list):
             # Add the additional keys and mark all unplaced keys as placeable,
             #  since all keys are placed at once.
             trial_key_locations = {}
-            
+
             is_speedrun = rand_options.key_placement == rng_opt.RandOptKeyDifficulty.SPEEDRUN_MODE
             if is_speedrun:
                 key_names = key_items_s.KEY_NAMES + key_items_s.ADDITIONAL_SPEEDRUN_KEYS
             else:
                 key_names = key_items_s.KEY_NAMES
-                
+
             for key_name in key_names:
                 if key_items_s.key_placed(key_name, current_key_locations):
                     trial_key_locations[key_name] = current_key_locations[key_name]
                 else:
                     trial_key_locations[key_name] = "to_place"
-    
+
             keys_to_place = sorted([key for key in trial_key_locations if trial_key_locations[key] == "to_place"])
             used_loc_ids = set([])
             for key_name in keys_to_place:
                 key = find_key_item_by_name(key_name, item_list)
-                log.debug("Finding trial location for key " + key_name)
-                
+                log.debug(f"Finding trial location for key {key_name}")
+
                 restricted_areas = key_items_s.get_key_restrictions(key_name, rand_options)
                 plausible_loc_ids = create_random_placement_list(table, 
                     make_difficulty_order_dict(rand_options.difficulty, key.diff), 
@@ -247,20 +253,22 @@ def place_key_items(table, rand_options, random_source, item_list):
                     plausible_loc_ids if (loc_id not in used_loc_ids and 
                      table.location_dict[loc_id].area in restricted_areas) and
                      not table.location_dict[loc_id].is_transient]
-                if (rand_options.key_placement == rng_opt.RandOptKeyDifficulty.RACE_MODE or 
-                 rand_options.key_placement == rng_opt.RandOptKeyDifficulty.SPEEDRUN_MODE):
+                if rand_options.key_placement in [
+                    rng_opt.RandOptKeyDifficulty.RACE_MODE,
+                    rng_opt.RandOptKeyDifficulty.SPEEDRUN_MODE,
+                ]:
                     possible_loc_ids = [loc_id for loc_id in pre_possible_loc_ids if table.location_dict[loc_id].is_race_key_loc]
                 else:
                     possible_loc_ids = pre_possible_loc_ids
-                    
-                if len(possible_loc_ids) > 0:
+
+                if possible_loc_ids:
                     used_loc_ids.add(possible_loc_ids[0])
                     trial_key_locations[key_name] = table.location_dict[possible_loc_ids[0]]
                 else:
                     has_good_trial = False
             if has_good_trial: # Nothing is wrong so far...
                 has_good_trial = key_items_s.check_key_locations_are_valid(trial_key_locations, rand_options)
-            
+
             if has_good_trial:
                 log.info("Trial succeeded.")
             else:
@@ -268,27 +276,28 @@ def place_key_items(table, rand_options, random_source, item_list):
         # We have a good trial, so make it permanent.
         for key_name in trial_key_locations:
             if not key_items_s.key_placed(key_name, current_key_locations):
-                key = find_key_item_by_name(key_name, item_list)   
+                key = find_key_item_by_name(key_name, item_list)
                 current_key_locations[key_name] = trial_key_locations[key_name]
                 loc = current_key_locations[key_name]
                 price_overwrite = get_price_for_difficulty(loc.diff, key, random_source)
                 if price_overwrite != None and loc.location_id in table.shop_dict:
-                    log.info("Placing " + key_name + " at location ID# " + str(loc.location_id) + " with price " + str(price_overwrite))
+                    log.info(
+                        f"Placing {key_name} at location ID# {str(loc.location_id)} with price {str(price_overwrite)}"
+                    )
                 else:
-                    log.info("Placing " + key_name + " at location ID# " + str(loc.location_id))
+                    log.info(f"Placing {key_name} at location ID# {str(loc.location_id)}")
                 table.place_itemlotpart_at_location(key, loc.location_id, item_list, price = price_overwrite)
     table.key_locs = current_key_locations
             
 def get_price_for_difficulty(diff, itemlotpart, random_source):
     if diff not in shop_s.PRICE_DISTIBUTION:
         return None
-    else:
-        possible_prices = shop_s.PRICE_DISTIBUTION[diff]
-        if itemlotpart.diff in [item_s.ITEM_DIF.SALABLE_EASY, 
-         item_s.ITEM_DIF.SALABLE_MEDIUM, item_s.ITEM_DIF.SALABLE_HARD]:
-             min_price = shop_s.SALABLE_MIN_SELL_PRICE[(itemlotpart.items[0].item_type, itemlotpart.items[0].item_id)]
-             possible_prices = [x for x in possible_prices if x >= min_price]
-        return random_source.choice(possible_prices)
+    possible_prices = shop_s.PRICE_DISTIBUTION[diff]
+    if itemlotpart.diff in [item_s.ITEM_DIF.SALABLE_EASY, 
+     item_s.ITEM_DIF.SALABLE_MEDIUM, item_s.ITEM_DIF.SALABLE_HARD]:
+         min_price = shop_s.SALABLE_MIN_SELL_PRICE[(itemlotpart.items[0].item_type, itemlotpart.items[0].item_id)]
+         possible_prices = [x for x in possible_prices if x >= min_price]
+    return random_source.choice(possible_prices)
 
             
 def place_non_key_fixed_items(table, rand_options, random_source, item_list):
@@ -364,19 +373,19 @@ def place_starting_equipment(table, data_passed_from_chr_init, item_list):
 def build_table(rand_options, random_source, chr_init_data):
     # Create a deep copy of the list of items to be modified for this table.
     item_list = copy.deepcopy(item_s.ITEMS)
-    
+
     # Deal with chr_init_data
-    if chr_init_data == None:
+    if chr_init_data is None:
         chr_inits = [chr_s.VANILLA_CHRS[chr_id].to_chr_init(chr_id , "") for chr_id in chr_s.VANILLA_CHRS]
         given_cip = cip.ChrInitParam(chr_inits)
     else:
         given_cip = cip.ChrInitParam.load_from_file_content(chr_init_data)
     chr_s.randomize_chr_armor(given_cip, rand_options, random_source)
     data_passed_from_chr_init = chr_s.randomize_starting_chr_weapons(given_cip, rand_options, random_source)
-    
+
     for chr_init in given_cip.chr_inits:
         print(chr_init.to_string())
-    
+
     table = item_t.ItemTable(copy.deepcopy(loc_s.LOCATIONS), copy.deepcopy(shop_s.DEFAULT_SHOP_DATA))
     place_ignored_items(table, item_list)
     place_upgrade_items(table, random_source, item_list)
@@ -387,15 +396,15 @@ def build_table(rand_options, random_source, chr_init_data):
     return (table, given_cip)
                 
 if __name__ == "__main__":
-    import random 
+    import random
     import sys
-    
+
     if len(sys.argv) < 2:
-        print("Usage: " + str(sys.argv[0]) + " <seed>")
+        print(f"Usage: {str(sys.argv[0])} <seed>")
         sys.exit(1)
-    
+
     seed = sys.argv[1]
-    
+
     #logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     logging.basicConfig(stream=sys.stdout, level=logging.WARN)
     options = rng_opt.RandomizerOptions(
@@ -408,7 +417,7 @@ if __name__ == "__main__":
       rng_opt.RandOptStartItemsDifficulty.COMBINED_POOL_AND_2H,
       rng_opt.RandOptGameVersion.PTDE,
       False)
-    
+
     rng = random.Random()
     rng.seed(seed)
     (table, _) = build_table(options, rng)
@@ -418,28 +427,28 @@ if __name__ == "__main__":
     hint_string = table.build_hintsheet()
     #ilp_binary_export = result_ilp.export_as_binary()
     #slp_binary_export = result_slp.export_as_binary()
-    
+
     #with open("ItemLotParam.param", 'wb') as f:
     #    f.write(ilp_binary_export)
     #    f.close()
-    
+
     #with open("ShopLineupParam.param", 'wb') as f:
     #    f.write(slp_binary_export)
     #    f.close()
-        
+
     #with open("cheatsheet.txt", "w") as f:
     #    f.write("Seed: " + str(seed) + "\n\n")
     #    f.write(cheat_string)
     #    f.close()
-        
+
     #with open("hintsheet.txt", "w") as f:
     #    f.write(hint_string)
     #    f.close()
-    
+
     #sys.stdout.write("Seed: " + str(seed) + "\n\n")
     #sys.stdout.write(options.as_string())
     #sys.stdout.flush()
-    
+
     sys.stdout.write(hint_string)
     #sys.stdout.write(ilp_binary_export)
     #sys.stdout.write(slp_binary_export)

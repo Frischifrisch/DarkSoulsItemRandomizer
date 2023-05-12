@@ -95,18 +95,20 @@ class ItemLot:
         item_flag_list = [item.item_flag for item in self.item_list]
         item_extra_list = [self.get_item_lot_flag, self.cumul_num_flag, self.cumul_num_max, self.rarity]
         item_count_list = [item.item_count for item in self.item_list]
-        
+
         item_luck_list = [item.item_luck for item in self.item_list]
-        packed_luck_byte = chr(sum([item_luck_list[i] * 2**i for i in range(7)]))
+        packed_luck_byte = chr(sum(item_luck_list[i] * 2**i for i in range(7)))
         item_cumul_reset_list = [item.item_cumul_reset for item in self.item_list]
-        packed_cumul_reset_byte = chr(sum([item_cumul_reset_list[i] * 2**i for i in range(7)]))
+        packed_cumul_reset_byte = chr(
+            sum(item_cumul_reset_list[i] * 2**i for i in range(7))
+        )
         item_packed_list = [packed_luck_byte.encode("ascii"), packed_cumul_reset_byte.encode("ascii")]
-        
+
         arg_list = (item_id_list + item_cat_list + item_weight_list + 
          item_cumul_list + item_flag_list + item_extra_list + 
          item_count_list + item_packed_list)
-        
-        data = struct.pack("@8I 8i 8h 8H 8i i i B B 8B c c", *arg_list)        
+
+        data = struct.pack("@8I 8i 8h 8H 8i i i B B 8B c c", *arg_list)
         return (self.lot_id, data, self.description)
 
 class ItemLotParam:
@@ -114,7 +116,7 @@ class ItemLotParam:
     DATA_RECORD_SIZE = 0x94
     
     def __init__(self, item_lots = None):
-        if item_lots == None:
+        if item_lots is None:
             item_lots = []
         self.item_lots = item_lots
         
@@ -124,19 +126,19 @@ class ItemLotParam:
     @classmethod
     def load_from_file_content(cls, file_content):
         master_offset = 0
-        
+
         (strings_offset, data_offset, unk, item_lot_count) = struct.unpack_from("<IIHH", file_content, offset=master_offset)
-        
+
         master_offset = 0x30  # Skip the rest of the header.
-        
+
         item_lots = []
-        for i in range(item_lot_count):
-            (item_lot_id, item_lot_data_offset, item_lot_string_offset) = struct.unpack_from("<III", file_content, offset=master_offset)           
+        for _ in range(item_lot_count):
+            (item_lot_id, item_lot_data_offset, item_lot_string_offset) = struct.unpack_from("<III", file_content, offset=master_offset)
             master_offset += struct.calcsize("<III")
-            
+
             description = extract_shift_jisz(file_content, item_lot_string_offset)
             item_lot_data = file_content[item_lot_data_offset:item_lot_data_offset + cls.DATA_RECORD_SIZE]
-            
+
             item_lots.append(ItemLot.from_binary(item_lot_id, item_lot_data, description))
         return ItemLotParam(item_lots)
              
